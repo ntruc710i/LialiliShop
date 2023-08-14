@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 
 use App\Models\Product;
+use App\Models\ProductAttributes;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -86,7 +87,7 @@ class ProductController extends Controller
     }
 
     /* Get Product Data to Update */
-    public function getProductDataForUpdate($id){
+    public function getProductData($id){
         $product = Product::where('id', $id)->first();
         return response()->json($product, 200);
     }
@@ -121,6 +122,77 @@ class ProductController extends Controller
         return response()->json($data, 200);
     }
 
+    /* Product attribute */
+    public function getProductAttribute($id){
+        $product_attr = ProductAttributes::select('products.*', 'product_attributes.*')
+                                        ->where('product_id', $id)->leftJoin('products', 'product_attributes.product_id', 'products.id')
+                                        ->orderBy("size", "asc")->get();
+        return response()->json($product_attr, 200);
+    }
+
+    public function addProductAttribute(Request $request){
+        $oldatt = ProductAttributes::where('product_id', $request->product_id)
+                                        ->where('size', $request->size)
+                                        ->where('color', $request->color)
+                                        ->first();
+
+        if($oldatt){
+            $data = ProductAttributes::where('product_id', $request->product_id)
+                                        ->where('size', $request->size)
+                                        ->where('color', $request->color)
+                                        ->first();
+            return response()->json(['item' => $data, 'status' => 'fails']);
+        }
+
+        ProductAttributes::create([
+                            'product_id' => $request->product_id,
+                            'size' => $request->size,
+                            'color' => $request->color,
+                            'stock' => $request->stock
+                            ]);
+
+        $data = ProductAttributes::where('product_id', $request->product_id)
+                                ->where('size', $request->size)
+                                ->where('color', $request->color)
+                                ->first();
+
+        if($data){
+        return response()->json(['item' => $data, 'status' => 'created']);
+        }
+        }
+
+    public function updateProductAttribute(Request $request){
+
+        
+        $attr = ProductAttributes::where('id', $request->id)->first();
+
+        $product_attr = [
+            'product_id' => $attr->product_id,
+            'size' => $attr->size,
+            'color' => $attr->color,
+            'stock' => $request->stock,
+
+        ];
+        ProductAttributes::where('id', $request->id)->update($product_attr);
+        $updatedData = ProductAttributes::where('id', $request->id)->first();
+        $allData = ProductAttributes::select('products.*', 'product_attributes.*')
+                                    ->where('product_id', $attr->product_id)->leftJoin('products', 'product_attributes.product_id', 'products.id')
+                                    ->orderBy("size", "asc")
+                                    ->get();
+
+        $data = $allData->where("id", $updatedData->id)->first();
+
+        $data["createdAt"] = $data->created_at->diffForHumans();
+        $data["updatedAt"] = $data->updated_at->diffForHumans();
+
+        return response()->json($data, 200);
+        
+    }
+    public function deleteProductAttribute($id){
+        $productattr = ProductAttributes::where("id", $id)->first();
+        return response()->json(['status' => 'delete success'], 200);
+        
+    }
     /* Request Data For Product Create and Update */
     private function requestDataForProduct($request){
         return [
