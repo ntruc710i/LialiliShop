@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Product;
 use App\Models\ProductAttributes;
+use App\Models\ProductImages;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -64,6 +65,15 @@ class ProductController extends Controller
         $product['image'] = $file_name;
 
         $newProduct = Product::create($product);
+        
+        $uploadedFiles = $request->file('files');
+        $nextId = Product::orderBy('id','desc')->first()->id + 1;
+        foreach ($uploadedFiles as $file) {
+            ProductImages::create([
+                'product_id' => $nextId,
+                'image' => $file->getClientOriginalName(),
+            ]);
+        } 
         $allData = Product::select('products.*', 'categories.title as category_title')
                         ->leftJoin('categories', 'products.category_id', 'categories.id')
                         ->get();
@@ -82,7 +92,8 @@ class ProductController extends Controller
         $db_image = $product->image;
         Storage::delete('public/'.$db_image);
         Product::where('id', $id)->delete();
-
+        ProductAttributes::where('product_id', $id)->delete();
+        ProductImages::where('product_id', $id)->delete();
         return response()->json(['status' => 'delete success'], 200);
     }
 
@@ -107,6 +118,15 @@ class ProductController extends Controller
             // return response()->json($request, 200);
         }
 
+        if($request->hasFile('images')){
+            $dbData = ProductImages::where('product_id', $request->id)->get();
+
+            foreach ($dbData as $file) {
+                $file = $file->image;
+                Storage::delete('public/products/'.$file);
+            } 
+            // return response()->json($request, 200);
+        }
 
         Product::where('id', $request->id)->update($product);
         $updatedData = Product::where('id', $request->id)->first();
@@ -193,6 +213,20 @@ class ProductController extends Controller
         return response()->json(['status' => 'delete success'], 200);
         
     }
+
+
+
+    /* Product Images */
+    public function getProductImage($id){
+        $product_imgs = ProductImages::where('product_id', $id)->get();
+        return response()->json($product_imgs, 200);
+    }
+    public function deleteProductImage($id){
+        $productattr = ProductImages::where("id", $id)->first();
+        return response()->json(['status' => 'delete success'], 200);
+        
+    }
+    
     /* Request Data For Product Create and Update */
     private function requestDataForProduct($request){
         return [
