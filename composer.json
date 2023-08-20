@@ -6,6 +6,9 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
+        "cloudinary-labs/cloudinary-laravel": "^2.0",
+        "cloudinary/cloudinary_php": "^2.11",
+        "darkaonline/l5-swagger": "^8.5",
         "fakerphp/faker": "^1.23",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^9.19",

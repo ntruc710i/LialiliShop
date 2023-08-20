@@ -13,6 +13,25 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+
+    /**
+     * @OA\Get(
+     *      path="/admin/product/getAllProducts",
+     *      operationId="getAllProducts",
+     *      tags={"Products"},
+     *      security={{"sanctum":{}}},
+     *      summary="Get All Products",
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/Product")
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      )
+     * )
+     */
     /* Get All Products */
     public function getAllProducts(){
         $products = Product::select('products.*', 'categories.title as category_title')
@@ -56,24 +75,88 @@ class ProductController extends Controller
         return response()->json($products, 200);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/admin/product/createProduct",
+     *     tags={"Products"},
+     *     summary="Add a new user to the store",
+     *     description="Returns a single new user.",
+     *     operationId="createProduct",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *          description= "User object that needs to be added to the store",
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *              type="object",
+     *              @OA\Property(property="title", type="string"),
+     *              @OA\Property(property="category_id", type="integer"),
+     *              @OA\Property(property="price", type="integer"),
+     *              @OA\Property(property="description", type="string"),
+     *              @OA\Property(property="image", type="string", format="binary"),
+     *              @OA\Property(
+     *                      property="images[]",
+     *                      type="array",
+     *                      @OA\Items(type="string", format="binary")
+     *                  )
+     *          )
+     *        )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Product"),
+     *     ),
+     *     @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid id supplied",
+     *         @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="The specified data is invalid."
+     *              ),
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  example={
+     *                      "name": "The name field is required.",
+     *                  },
+     *              ),
+     *         ),
+     *     ),
+     * )
+     */
     /* Create New Product */
     public function createProduct(Request $request){
         $product = $this->requestDataForProduct($request);
 
         $file_name = uniqid().$request->file('image')->getClientOriginalName();
-        $request->file('image')->storeAs('public/products', $file_name);
-        $product['image'] = $file_name;
-
+        //$request->file('image')->storeAs('public/products', $file_name);
+        $uploadedFileUrl = cloudinary()->upload($request->file('image')->getRealPath())->getSecurePath();
+        $product['image'] = $uploadedFileUrl;
+        
         $newProduct = Product::create($product);
         
-        $uploadedFiles = $request->file('files');
-        $nextId = Product::orderBy('id','desc')->first()->id + 1;
-        foreach ($uploadedFiles as $file) {
-            ProductImages::create([
-                'product_id' => $nextId,
-                'image' => $file->getClientOriginalName(),
-            ]);
-        } 
+        $uploadedFiles = $request->file('images');
+        if($newProduct){
+            $nextId = Product::orderBy('id','desc')->first()->id;
+            foreach ($uploadedFiles as $file) {
+                $uploaded = cloudinary()->upload($file->getRealPath())->getSecurePath();
+                //$file->storeAs('public/product_images', $file->getClientOriginalName());
+                ProductImages::create([
+                    'product_id' => $nextId,
+                    'image' => $uploaded,
+                ]);
+            } 
+        }
+        
         $allData = Product::select('products.*', 'categories.title as category_title')
                         ->leftJoin('categories', 'products.category_id', 'categories.id')
                         ->get();
@@ -86,6 +169,33 @@ class ProductController extends Controller
         return response()->json($data, 200);
     }
 
+    /**
+     * @OA\Delete(
+     *      path="/admin/product/deleteProduct/{id}",
+     *      operationId="deleteProduct",
+     *      tags={"Products"},
+     *      summary="Delete Product",
+     *      security={{"sanctum":{}}},       
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="Product ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/Product")
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      )
+     * )
+     */
     /* Delete Product */
     public function deleteProduct($id){
         $product = Product::where("id", $id)->first();
@@ -103,6 +213,64 @@ class ProductController extends Controller
         return response()->json($product, 200);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/admin/product/updateProduct",
+     *     tags={"Products"},
+     *     summary="Update product to the store",
+     *     description="Returns a product.",
+     *     operationId="updateProduct",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *          description= "User object that needs to be added to the store",
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *              type="object",
+     *              @OA\Property(property="title", type="string"),
+     *              @OA\Property(property="category_id", type="integer"),
+     *              @OA\Property(property="price", type="integer"),
+     *              @OA\Property(property="description", type="string"),
+     *              @OA\Property(property="image", type="string", format="binary"),
+     *              @OA\Property(
+     *                      property="images[]",
+     *                      type="array",
+     *                      @OA\Items(type="string", format="binary")
+     *                  )
+     *          )
+     *        )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Product"),
+     *     ),
+     *     @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid id supplied",
+     *         @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="The specified data is invalid."
+     *              ),
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  example={
+     *                      "name": "The name field is required.",
+     *                  },
+     *              ),
+     *         ),
+     *     ),
+     * )
+     */
     /* Update Product */
     public function updateProduct(Request $request){
         $product = $this->requestDataForProduct($request);
@@ -113,22 +281,38 @@ class ProductController extends Controller
             Storage::delete('public/products/'.$dbName);
 
             $file_name = uniqid().$request->file('image')->getClientOriginalName();
-            $request->file('image')->storeAs('public/products', $file_name);
-            $product["image"] = $file_name;
+            //$request->file('image')->storeAs('public/products', $file_name);
+            //$product["image"] = $file_name;
+            $uploadedFileUrl = cloudinary()->upload($request->file('image')->getRealPath())->getSecurePath();
+            $product['image'] = $uploadedFileUrl;
             // return response()->json($request, 200);
         }
-
+        
+        
+            
+            
+        $update=Product::where('id', $request->id)->update($product);
         if($request->hasFile('images')){
+            /*
             $dbData = ProductImages::where('product_id', $request->id)->get();
 
             foreach ($dbData as $file) {
                 $file = $file->image;
-                Storage::delete('public/products/'.$file);
-            } 
+                Storage::delete('public/product_images/'.$file);
+            } */
+            $uploadedFiles = $request->file('images');
+            if($update){
+                $nextId = Product::orderBy('id','desc')->first()->id;
+                foreach ($uploadedFiles as $file) {
+                    $uploadedFileUrl = cloudinary()->upload($file->getRealPath())->getSecurePath();
+                    //$file->storeAs('public/product_images', $file->getClientOriginalName());
+                    ProductImages::create([
+                        'product_id' => $nextId,
+                        'image' => $file->getClientOriginalName(),
+                    ]);
+                } 
             // return response()->json($request, 200);
-        }
-
-        Product::where('id', $request->id)->update($product);
+        }}
         $updatedData = Product::where('id', $request->id)->first();
         $allData = Product::select('products.*', 'categories.title as category_title')
                         ->leftJoin('categories', 'products.category_id', 'categories.id')
@@ -142,14 +326,92 @@ class ProductController extends Controller
         return response()->json($data, 200);
     }
 
-    /* Product attribute */
-    public function getProductAttribute($id){
+    /**
+     * @OA\Get(
+     *      path="/admin/product/getProductAttribute/{product_id}",
+     *      operationId="adgetProductAttribute",
+     *      tags={"Products"},
+     *      summary="Get Product Attribute",
+     *      security={{"sanctum":{}}},
+     *      @OA\Parameter(
+     *          name="product_id",
+     *          in="path",
+     *          description="Product Attribute ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/Product")
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      )
+     * )
+     */
+    public function getProductAttribute($product_id){
         $product_attr = ProductAttributes::select('products.*', 'product_attributes.*')
-                                        ->where('product_id', $id)->leftJoin('products', 'product_attributes.product_id', 'products.id')
+                                        ->where('product_id', $product_id)->leftJoin('products', 'product_attributes.product_id', 'products.id')
                                         ->orderBy("size", "asc")->get();
         return response()->json($product_attr, 200);
     }
 
+        /**
+     * @OA\Post(
+     *     path="/admin/product/addProductAttribute",
+     *     tags={"Products"},
+     *     summary="Add product Attribute",
+     *     description="Returns a product.",
+     *     operationId="addProductAttribute",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *          description= "Product Attribute object that needs to be added to the store",
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *              type="object",
+     *              @OA\Property(property="product_id", type="integer"),
+     *              @OA\Property(property="size", type="string"),
+     *              @OA\Property(property="color", type="string"),
+     *              @OA\Property(property="stock", type="integer"),
+     *          )
+     *        )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Product"),
+     *     ),
+     *     @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid id supplied",
+     *         @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="The specified data is invalid."
+     *              ),
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  example={
+     *                      "name": "The name field is required.",
+     *                  },
+     *              ),
+     *         ),
+     *     ),
+     * )
+     */
     public function addProductAttribute(Request $request){
         $oldatt = ProductAttributes::where('product_id', $request->product_id)
                                         ->where('size', $request->size)
@@ -181,6 +443,58 @@ class ProductController extends Controller
         }
         }
 
+        /**
+     * @OA\Post(
+     *     path="/admin/product/updateProductAttribute",
+     *     tags={"Products"},
+     *     summary="Update product Attribute",
+     *     description="Returns a product.",
+     *     operationId="updateProductAttribute",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *          description= "Product Attribute object that needs to be update to the store",
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *              type="object",
+     *              @OA\Property(property="product_id", type="integer"),
+     *              @OA\Property(property="size", type="string"),
+     *              @OA\Property(property="color", type="string"),
+     *              @OA\Property(property="stock", type="integer"),
+     *          )
+     *        )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Product"),
+     *     ),
+     *     @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid id supplied",
+     *         @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="The specified data is invalid."
+     *              ),
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  example={
+     *                      "name": "The name field is required.",
+     *                  },
+     *              ),
+     *         ),
+     *     ),
+     * )
+     */
     public function updateProductAttribute(Request $request){
 
         
@@ -208,21 +522,108 @@ class ProductController extends Controller
         return response()->json($data, 200);
         
     }
+    /**
+     * @OA\Delete(
+     *      path="/admin/product/deleteProductAttribute/{id}",
+     *      operationId="deleteProductAttribute",
+     *      tags={"Products"},
+     *      summary="Delete Product Attribute",
+     *      security={{"sanctum":{}}},       
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="Product Attribute ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/Product")
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      )
+     * )
+     */
     public function deleteProductAttribute($id){
-        $productattr = ProductAttributes::where("id", $id)->first();
+        $productattr = ProductAttributes::where("id", $id)->delete();
         return response()->json(['status' => 'delete success'], 200);
         
     }
 
 
-
+    /**
+     * @OA\Get(
+     *      path="/admin/product/getProductImage/{product_id}",
+     *      operationId="adgetProductImage",
+     *      tags={"Products"},
+     *      summary="Get Product Image",
+     *      security={{"sanctum":{}}}, 
+     *      @OA\Parameter(
+     *          name="product_id",
+     *          in="path",
+     *          description="Product Image ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/Product")
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      )
+     * )
+     */
     /* Product Images */
-    public function getProductImage($id){
-        $product_imgs = ProductImages::where('product_id', $id)->get();
+    public function getProductImage($product_id){
+        $product_imgs = ProductImages::where('product_id', $product_id)->get();
         return response()->json($product_imgs, 200);
     }
-    public function deleteProductImage($id){
-        $productattr = ProductImages::where("id", $id)->first();
+
+    /**
+     * @OA\Delete(
+     *      path="/admin/product/deleteProductImage/{id}",
+     *      operationId="deleteProductImage",
+     *      tags={"Products"},
+     *      summary="Delete Product Image",
+     *      security={{"sanctum":{}}},       
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="Product Image ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/Product")
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      )
+     * )
+     */
+    public function deleteProductImage($product_id){
+        $dbData = ProductImages::where('product_id', $product_id)->get();
+
+            foreach ($dbData as $file) {
+                $file = $file->image;
+                Storage::delete('public/product_images/'.$file);
+            } 
+        $productattr = ProductImages::where("id", $product_id)->delete();
         return response()->json(['status' => 'delete success'], 200);
         
     }
@@ -231,7 +632,7 @@ class ProductController extends Controller
     private function requestDataForProduct($request){
         return [
             'title' => $request->title,
-            'category_id' => $request->category,
+            'category_id' => $request->category_id,
             'slug'=> Str::slug($request->title),
             'price' => $request->price,
             'description' => $request->description,

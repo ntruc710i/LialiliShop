@@ -9,6 +9,89 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+
+    /**
+     * @OA\Post(
+     *     path="/auth/admin/register",
+     *     tags={"Auth"},
+     *     summary="Register Admin into system",
+     *     description="Returns a info auth.",
+     *     operationId="registerAdmin",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="The user name for login",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="The Email for register",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="phone",
+     *         in="query",
+     *         description="The phone number for register",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="role",
+     *         in="query",
+     *         description="The role for upadte",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="password",
+     *         in="query",
+     *         description="The phone number for register",
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="password_confirmation",
+     *         in="query",
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/User"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid id supplied",
+     *         @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="The specified data is invalid."
+     *              ),
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  example={
+     *                      "email": "The email field is required.",
+     *                  },
+     *              ),
+     *         ),
+     *     ),
+     * )
+     */
     /* Register New Admin Account */
     public function adminRegister(Request $request){
         $validated = $request->validate([
@@ -36,12 +119,58 @@ class AuthController extends Controller
         ], 200);
     }
 
+
+
+    /**
+     * @OA\Post(
+     *     path="/auth/register",
+     *     tags={"Auth"},
+     *     summary="Register user customer into system",
+     *     description="Returns a info auth.",
+     *     operationId="registerUser",
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="The name for register",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="The email for register",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="password",
+     *         in="query",
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="password_confirmation",
+     *         in="query",
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/User"),
+     *         ),
+     *     ),
+     * )
+     */
     /* Register New Customer Account */
     public function customerRegister(Request $request){
         $validated = $request->validate([
             'name' => 'required|string|max:15',
             'email' => 'required|email|string|unique:users,email',
-            'role' => 'required|string',
             'password' => 'required|string|confirmed'
         ]);
 
@@ -50,7 +179,7 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'role' => $validated['role'],
+            'role' => 'customer',
             'password' => Hash::make($validated['password'])
         ]);
 
@@ -61,6 +190,75 @@ class AuthController extends Controller
         ], 200);
     }
 
+
+    /**
+     * @OA\Post(
+     *     path="/auth/login",
+     *     tags={"Auth"},
+     *     summary="Logs user into system",
+     *     description="Returns a info auth.",
+     *     operationId="loginUser",
+     *     @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="The user name for login",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="password",
+     *         in="query",
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="role",
+     *         in="query",
+     *         @OA\Schema(
+     *             type="string",
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/User"),
+     *         
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid id supplied",
+     *         @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="The specified data is invalid."
+     *              ),
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  example={
+     *                      "email": "The email field is required.",
+     *                  },
+     *              ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="Unauthenticated."
+     *              ),
+     *         ),
+     *     )
+     * )
+     */
     /* User Login */
     public function login(Request $request){
         $validated = $request->validate([
@@ -90,6 +288,51 @@ class AuthController extends Controller
         ], 200);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/auth/logout",
+     *     tags={"Auth"},
+     *     summary="Logs user into system",
+     *     description="Returns a info auth.",
+     *     operationId="logoutUser",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation", 
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid id supplied",
+     *         @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="The specified data is invalid."
+     *              ),
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  example={
+     *                      "email": "The email field is required.",
+     *                  },
+     *              ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="Unauthenticated."
+     *              ),
+     *         ),
+     *     )
+     * )
+     */
     /* User Logout */
     public function logout(){
         Auth::user()->tokens()->delete();

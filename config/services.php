@@ -31,15 +31,22 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
     'google' => [
-        'client_id' => env('GOOGLE_CLIENT_ID'),
-        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect' => 'http://localhost:8000/api/auth/google/callback',
+        'client_id' => '520238882794-ocjmet8lr3romjs0ift51iooe7k5dk8e.apps.googleusercontent.com',
+        'client_secret' => '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',
+        'redirect' => 'http://lialili.fly.dev/api/auth/google/callback',
     ],
 
     'facebook' => [
         'client_id' => env('FACEBOOK_CLIENT_ID'),
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
         'redirect' => 'http://localhost:8000/api/auth/facebook/callback',
+    ],
+    
+    'cloudinary' => [
+        'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+        'api_key' => env('CLOUDINARY_API_KEY'),
+        'api_secret' => env('CLOUDINARY_API_SECRET'),
+        'secure' => true,
     ],
 
 ];

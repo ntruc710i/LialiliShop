@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\ProductAttributes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Cart;
@@ -12,20 +14,49 @@ use Carbon\Carbon;
 
 class ShopController extends Controller
 {
+
+    /**
+     * @OA\Get(
+     *      path="/admin/product/getProductImage/{product_id}",
+     *      operationId="adgetProductImage",
+     *      tags={"Products"},
+     *      summary="Get Product Image",
+     *      security={{"sanctum":{}}}, 
+     *      @OA\Parameter(
+     *          name="product_id",
+     *          in="path",
+     *          description="Product Image ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/Product")
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      )
+     * )
+     */
     // Add One Item To Cart
     public function addItemsToCart(Request $request){
         $oldCartItem = Cart::where('user_id', Auth::user()->id)
-                            ->where('product_id', $request->id)
+                            ->where('product_attribute_id', $request->id)
                             ->first();
-
+        $product = ProductAttributes::where('id',$request->id)->first();
         if($oldCartItem){
             Cart::where('user_id', Auth::user()->id)
-                ->where('product_id', $request->id)
+                ->where('product_attribute_id', $request->id)
                 ->update(['quantity' => $oldCartItem->quantity+$request->quantity]);
+            
 
             $data = Cart::with('product')
                         ->where('user_id', Auth::user()->id)
-                        ->where('product_id', $request->id)
+                        ->where('product_id', $product->product_id)
                         ->first();
 
             return response()->json(['item' => $data, 'status' => 'fails']);
@@ -33,7 +64,8 @@ class ShopController extends Controller
 
         Cart::create([
             'user_id' => Auth::user()->id,
-            'product_id' => $request->id,
+            'product_id' => $product->product_id,
+            'product_attribute_id' => $request->id,
             'quantity' => $request->quantity
         ]);
 

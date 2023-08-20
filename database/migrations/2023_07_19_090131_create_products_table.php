@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('price');
             $table->longText('description');
             $table->string('image');
-            $table->float('rate');
+            $table->float('rate')->nullable();
             $table->timestamps();
         });
     }

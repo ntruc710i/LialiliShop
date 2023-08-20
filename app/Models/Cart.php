@@ -8,6 +8,44 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cart extends Model
 {
+
+    /**
+     *  @OA\Schema(
+     *     schema="Cart",
+     *     required={"id", "user_id", "product_id", "product_attribute_id", "quantity"},
+     *     @OA\Property(
+     *         property="id",
+     *         type="integer",
+     *         format="int32"
+     *     ),
+     *     @OA\Property(
+     *         property="user_id",
+     *         type="integer"
+     *     ),
+     *     @OA\Property(
+     *         property="product_id",
+     *         type="integer"
+     *     ),
+     *     @OA\Property(
+     *         property="product_attribute_id",
+     *         type="integer"
+     *     ),
+     *     @OA\Property(
+     *         property="quantity",
+     *         type="integer"
+     *     ),
+     *     @OA\Property(
+     *         property="created_at",
+     *         type="string",
+     *         format="date-time"
+     *     ),
+     *     @OA\Property(
+     *         property="updated_at",
+     *         type="string",
+     *         format="date-time"
+     *     )
+     * ),
+     */
     use HasFactory;
 
     protected $fillable = [

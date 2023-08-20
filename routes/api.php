@@ -30,7 +30,7 @@ use App\Http\Controllers\Customer\ItemController;
 
 /* Authentication Section */
 Route::controller(AuthController::class)->prefix('auth')->group(function(){
-    Route::post('/admin/register', 'adminRegister');
+    Route::post('/admin/register', 'adminRegister')->middleware('auth:sanctum');
     Route::post('/register', 'customerRegister');
     Route::post('/login', 'login');
 
@@ -109,6 +109,10 @@ Route::controller(ItemController::class)->prefix('item')->group(function(){
     Route::get('/getPopularItems', 'getPopularItems');
     Route::get('/getBestRatingItems', 'getBestRatingItems');
     Route::get('/getItem/{id}', 'getItem');
+    Route::get('/getProductImage/{product_id}', 'getProductImage');
+    Route::get('/getProductAttribute/{product_id}', 'getProductAttribute');
+
+    Route::get('/filterItems/{id}', 'filterItems');
 });
 
 /** Forgot Password, Email Verification, Reset Password */

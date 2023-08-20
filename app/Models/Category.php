@@ -9,6 +9,31 @@ use App\Models\Product;
 
 class Category extends Model
 {
+    /**
+     *  @OA\Schema(
+     *     schema="Category",
+     *     required={"id", "title"},
+     *     @OA\Property(
+     *         property="id",
+     *         type="integer",
+     *         format="int32"
+     *     ),
+     *     @OA\Property(
+     *         property="title",
+     *         type="string"
+     *     ),
+     *     @OA\Property(
+     *         property="created_at",
+     *         type="string",
+     *         format="date-time"
+     *     ),
+     *     @OA\Property(
+     *         property="updated_at",
+     *         type="string",
+     *         format="date-time"
+     *     )
+     * ),
+     */
     use HasFactory;
 
     Protected $fillable = [
