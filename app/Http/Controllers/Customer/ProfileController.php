@@ -14,6 +14,7 @@ class ProfileController extends Controller
      *      operationId="getProfileData",
      *      tags={"CustomerProfile"},
      *      summary="Get Customer Profile",
+     *      security={{"sanctum":{}}}, 
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",

@@ -330,7 +330,7 @@ class ProductController extends Controller
      * @OA\Get(
      *      path="/admin/product/getProductAttribute/{product_id}",
      *      operationId="adgetProductAttribute",
-     *      tags={"Products"},
+     *      tags={"ProductAttributes"},
      *      summary="Get Product Attribute",
      *      security={{"sanctum":{}}},
      *      @OA\Parameter(
@@ -363,7 +363,7 @@ class ProductController extends Controller
         /**
      * @OA\Post(
      *     path="/admin/product/addProductAttribute",
-     *     tags={"Products"},
+     *     tags={"ProductAttributes"},
      *     summary="Add product Attribute",
      *     description="Returns a product.",
      *     operationId="addProductAttribute",
@@ -446,7 +446,7 @@ class ProductController extends Controller
         /**
      * @OA\Post(
      *     path="/admin/product/updateProductAttribute",
-     *     tags={"Products"},
+     *     tags={"ProductAttributes"},
      *     summary="Update product Attribute",
      *     description="Returns a product.",
      *     operationId="updateProductAttribute",
@@ -526,7 +526,7 @@ class ProductController extends Controller
      * @OA\Delete(
      *      path="/admin/product/deleteProductAttribute/{id}",
      *      operationId="deleteProductAttribute",
-     *      tags={"Products"},
+     *      tags={"ProductAttributes"},
      *      summary="Delete Product Attribute",
      *      security={{"sanctum":{}}},       
      *      @OA\Parameter(
@@ -560,7 +560,7 @@ class ProductController extends Controller
      * @OA\Get(
      *      path="/admin/product/getProductImage/{product_id}",
      *      operationId="adgetProductImage",
-     *      tags={"Products"},
+     *      tags={"ProductImages"},
      *      summary="Get Product Image",
      *      security={{"sanctum":{}}}, 
      *      @OA\Parameter(
@@ -593,7 +593,7 @@ class ProductController extends Controller
      * @OA\Delete(
      *      path="/admin/product/deleteProductImage/{id}",
      *      operationId="deleteProductImage",
-     *      tags={"Products"},
+     *      tags={"ProductImages"},
      *      summary="Delete Product Image",
      *      security={{"sanctum":{}}},       
      *      @OA\Parameter(

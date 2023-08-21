@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Cart extends Model
 {
-
-    /**
+   /**
      *  @OA\Schema(
      *     schema="Cart",
      *     required={"id", "user_id", "product_id", "product_attribute_id", "quantity"},
@@ -60,4 +59,9 @@ class Cart extends Model
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
+    public function productAttributes(): BelongsTo
+    {
+        return $this->belongsTo(ProductAttributes::class, 'product_attribute_id');
+    }
+
 }

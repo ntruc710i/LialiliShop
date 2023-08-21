@@ -494,7 +494,7 @@
         "/admin/product/getProductAttribute/{product_id}": {
             "get": {
                 "tags": [
-                    "Products"
+                    "ProductAttributes"
                 ],
                 "summary": "Get Product Attribute",
                 "operationId": "adgetProductAttribute",
@@ -534,7 +534,7 @@
         "/admin/product/addProductAttribute": {
             "post": {
                 "tags": [
-                    "Products"
+                    "ProductAttributes"
                 ],
                 "summary": "Add product Attribute",
                 "description": "Returns a product.",
@@ -611,7 +611,7 @@
         "/admin/product/updateProductAttribute": {
             "post": {
                 "tags": [
-                    "Products"
+                    "ProductAttributes"
                 ],
                 "summary": "Update product Attribute",
                 "description": "Returns a product.",
@@ -688,7 +688,7 @@
         "/admin/product/deleteProductAttribute/{id}": {
             "delete": {
                 "tags": [
-                    "Products"
+                    "ProductAttributes"
                 ],
                 "summary": "Delete Product Attribute",
                 "operationId": "deleteProductAttribute",
@@ -728,7 +728,7 @@
         "/admin/product/getProductImage/{product_id}": {
             "get": {
                 "tags": [
-                    "Products"
+                    "ProductImages"
                 ],
                 "summary": "Get Product Image",
                 "operationId": "adgetProductImage",
@@ -768,7 +768,7 @@
         "/admin/product/deleteProductImage/{id}": {
             "delete": {
                 "tags": [
-                    "Products"
+                    "ProductImages"
                 ],
                 "summary": "Delete Product Image",
                 "operationId": "deleteProductImage",
@@ -1391,6 +1391,66 @@
                 ]
             }
         },
+        "/contact/contactAdminTeam": {
+            "post": {
+                "tags": [
+                    "Contact"
+                ],
+                "summary": "Contact Admin Team",
+                "operationId": "contactAdminTeam",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "description": "Phone",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "message",
+                        "in": "query",
+                        "description": "Message",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/item/getAllItems": {
             "get": {
                 "tags": [
@@ -1523,6 +1583,41 @@
                 }
             }
         },
+        "/item/getItem/{id}": {
+            "get": {
+                "tags": [
+                    "Items"
+                ],
+                "summary": "get Item",
+                "operationId": "getItem",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Product"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
         "/item/getAllCategories": {
             "get": {
                 "tags": [
@@ -1638,7 +1733,361 @@
                     "404": {
                         "description": "User not found"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/shop/addItemsToCart": {
+            "post": {
+                "tags": [
+                    "Shop"
+                ],
+                "summary": "Add item to cart",
+                "operationId": "addItemsToCart",
+                "parameters": [
+                    {
+                        "name": "product_attribute_id",
+                        "in": "query",
+                        "description": "Product Attribute ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "quantity",
+                        "in": "query",
+                        "description": "Quantity",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Cart"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/shop/getAllCartItems": {
+            "get": {
+                "tags": [
+                    "Shop"
+                ],
+                "summary": "Get All Cart Items",
+                "operationId": "getAllCartItems",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Cart"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/shop/updateCartItemQuantity": {
+            "put": {
+                "tags": [
+                    "Shop"
+                ],
+                "summary": "Update cart item quantity",
+                "description": "Update the quantity of a specific item in the user's cart.",
+                "operationId": "updateCartItemQuantity",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "ID of the cart item to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "quantity",
+                        "in": "query",
+                        "description": "New quantity for the cart item",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Cart item not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/shop/deleteCartItem/{id}": {
+            "delete": {
+                "tags": [
+                    "Shop"
+                ],
+                "summary": "Delete Cart Item",
+                "operationId": "deleteCartItem",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "CartItem ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/shop/orderCheckout": {
+            "post": {
+                "tags": [
+                    "Shop"
+                ],
+                "summary": "Order Checkout",
+                "operationId": "orderCheckout",
+                "parameters": [
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "description": "Phone",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "description": "Address",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/shop/getAllOrders": {
+            "get": {
+                "tags": [
+                    "Shop"
+                ],
+                "summary": "Get All Orders",
+                "operationId": "getAllOrders",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Order"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/shop/getOrderDetail/{orderCode}": {
+            "get": {
+                "tags": [
+                    "Shop"
+                ],
+                "summary": "get Order Detail",
+                "operationId": "getOrderDetail",
+                "parameters": [
+                    {
+                        "name": "orderCode",
+                        "in": "path",
+                        "description": "order Code",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderList"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/shop/buyNow": {
+            "post": {
+                "tags": [
+                    "Shop"
+                ],
+                "summary": "Buy Now",
+                "operationId": "buyNow",
+                "parameters": [
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "description": "Phone",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "description": "Address",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "product_id",
+                        "in": "query",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "product_attribute_id",
+                        "in": "query",
+                        "description": "Product Attribute ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "quantity",
+                        "in": "query",
+                        "description": "Quantity",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "total",
+                        "in": "query",
+                        "description": "Total",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         }
     },

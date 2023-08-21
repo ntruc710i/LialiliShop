@@ -103,7 +103,7 @@ class ItemController extends Controller
     public function filterItemsByCategory($id,Request $request){
         $limit = $request->input('limit');
         if(!$limit){
-            $limit = 10;
+            $limit = 12;
         }
         $data = Product::with(['category', 'productImages', 'productAttributes'])
                         ->where('category_id', $id)
@@ -211,7 +211,6 @@ class ItemController extends Controller
      *      operationId="getItem",
      *      tags={"Items"},
      *      summary="get Item",
-     *      description="get Item",
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
@@ -232,7 +231,7 @@ class ItemController extends Controller
      *      )
      * )
      */
-    /** Get Item Detail */
+    /* Get Item Detail */
     public function getItem($id){
         $item = Product::with(['category', 'productImages', 'productAttributes'])->where('id', $id)->first();
 

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\AppreciationMail;
 
+
+use App\Mail\ContactedMail;
 use App\Models\Contact;
 
 use Illuminate\Http\Request;
@@ -11,7 +12,61 @@ use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
-    /** Send Contact Message To Admin Team */
+
+    /**
+     * @OA\Post(
+     *      path="/contact/contactAdminTeam",
+     *      operationId="contactAdminTeam",
+     *      tags={"Contact"},
+     *      summary="Contact Admin Team",
+     *      security={{"sanctum":{}}},       
+     *      @OA\Parameter(
+     *          name="name",
+     *          in="query",
+     *          description="Name",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="email",
+     *          in="query",
+     *          description="Email",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="phone",
+     *          in="query",
+     *          description="Phone",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="message",
+     *          in="query",
+     *          description="Message",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      )
+     * )
+     */
+    /* Send Contact Message To Admin Team */
     public function contactAdminTeam(Request $request){
         $validated = $this->contactValidation($request);
 
@@ -23,7 +78,7 @@ class ContactController extends Controller
         ]);
 
         if($contact){
-            Mail::to($contact->email)->queue(new AppreciationMail($contact));
+            Mail::to($contact->email)->queue(new ContactedMail($contact));
             return response()->json(['status' => 'success']);
         }
 
