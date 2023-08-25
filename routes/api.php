@@ -78,6 +78,10 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         /* Product Images */
         Route::get('/getProductImage/{id}', 'getProductImage');
         Route::delete('/deleteProductImage/{id}', 'deleteProductImage');
+
+        /*Order Section */
+        Route::get('/getAllOrders', 'getAllOrders');
+        Route::get('/getOrderDetail/{orderCode}', 'getOrderDetail');
     });
 
     

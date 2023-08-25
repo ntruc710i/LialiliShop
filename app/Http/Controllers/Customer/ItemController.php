@@ -36,14 +36,18 @@ class ItemController extends Controller
     // Get All Items
 
     
-    public function getAllItems(){
+    public function getAllItems(Request $request){
+        $limit = $request->input('limit');
+        if(!$limit){
+            $limit=12;
+        }
         $data = Product::with(['category', 'productImages', 'productAttributes'])
                         ->when(request('searchKey'), function($query){
                             $query->orWhere('title', 'like', '%'.request('searchKey').'%')
                                     ->orWhere('price', 'like', '%'.request('searchKey').'%');
                         })
                         ->orderBy('created_at', 'desc')
-                        ->paginate(10);
+                        ->paginate($limit);
                
         return response()->json(['items' => $data]);
     }

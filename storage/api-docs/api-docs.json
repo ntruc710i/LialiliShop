@@ -2089,6 +2089,89 @@
                     }
                 ]
             }
+        },
+        "/account/emailVerification": {
+            "post": {
+                "tags": [
+                    "ResetPassword"
+                ],
+                "summary": "Email Verification",
+                "operationId": "emailVerification",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/account/resetPassword": {
+            "post": {
+                "tags": [
+                    "ResetPassword"
+                ],
+                "summary": "Reset Password",
+                "operationId": "resetPassword",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "token",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "Pasword",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "password_confirmation",
+                        "in": "query",
+                        "description": "password_confirmation",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
         }
     },
     "components": {

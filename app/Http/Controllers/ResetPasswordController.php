@@ -16,6 +16,32 @@ use Illuminate\Support\Facades\Redirect;
 
 class ResetPasswordController extends Controller
 {
+
+    /**
+     * @OA\Post(
+     *      path="/account/emailVerification",
+     *      operationId="emailVerification",
+     *      tags={"ResetPassword"},
+     *      summary="Email Verification",    
+     *      @OA\Parameter(
+     *          name="email",
+     *          in="query",
+     *          description="Email",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      )
+     * )
+     */
     // Verify Email And Create A Token
     public function emailVerification(Request $request){
         $validated = $request->validate([
@@ -40,7 +66,59 @@ class ResetPasswordController extends Controller
         return response()->json(['token' => $token]);
     }
 
-    /** Reset Password */
+    /**
+     * @OA\Post(
+     *      path="/account/resetPassword",
+     *      operationId="resetPassword",
+     *      tags={"ResetPassword"},
+     *      summary="Reset Password",    
+     *      @OA\Parameter(
+     *          name="token",
+     *          in="query",
+     *          description="token",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="email",
+     *          in="query",
+     *          description="Email",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="password",
+     *          in="query",
+     *          description="Pasword",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="password_confirmation",
+     *          in="query",
+     *          description="password_confirmation",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      )
+     * )
+     */
+    /* Reset Password */
     public function resetPassword(Request $request){
         $validated = $request->validate([
             'token' => 'required | string',
