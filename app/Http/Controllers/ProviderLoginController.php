@@ -26,7 +26,7 @@ class ProviderLoginController extends Controller
         ])->first();
 
         if($db_user){
-            return Redirect::to('https://vue-ecommerce-shop.netlify.app/login?message=email-duplicate');
+            return Redirect::to('http://localhost:8000/provider/login?message=email-duplicate');
         }
 
         $user = User::updateOrCreate([
@@ -38,12 +38,13 @@ class ProviderLoginController extends Controller
             'provider_token' => $providerUser->token,
             'avatar' => $providerUser->avatar,
             'provider' => $provider,
+            'password' => $providerUser->token,
             'role' => 'customer'
         ]);
 
         Session::put('email', $providerUser->email);
 
-        return Redirect::to('https://vue-ecommerce-shop.netlify.app/login?email='.$providerUser->email);
+        return Redirect::to('http://localhost:8000/api/auth/provider/login/'.$providerUser->email);
     }
 
     /* Provider Login */

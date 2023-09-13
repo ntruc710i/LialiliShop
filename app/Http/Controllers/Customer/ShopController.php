@@ -327,7 +327,7 @@ class ShopController extends Controller
      */
     public function getOrderDetail($orderCode){
         $data = OrderList::with([ "product" => function($query){
-                            $query->select('id', 'title', 'price');
+                            $query->select('id', 'title','image', 'price');
                         }])
                         ->where('order_code', $orderCode)
                         ->get();

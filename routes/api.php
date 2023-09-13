@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -11,6 +12,7 @@ use App\Http\Controllers\ProviderLoginController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ContactController as AdContactControler;
 
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\ShopController;
@@ -78,10 +80,6 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         /* Product Images */
         Route::get('/getProductImage/{id}', 'getProductImage');
         Route::delete('/deleteProductImage/{id}', 'deleteProductImage');
-
-        /*Order Section */
-        Route::get('/getAllOrders', 'getAllOrders');
-        Route::get('/getOrderDetail/{orderCode}', 'getOrderDetail');
     });
 
     
@@ -96,6 +94,24 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         Route::post('/changeRole', 'changeRole');
         Route::post('/changePassword', 'changePassword');
         Route::get('/getAllCustomers/{searchKey}', 'getAllCustomers');
+    });
+
+    /* Category Section */
+    Route::controller(OrderController::class)->prefix('order')->group(function(){
+        Route::get('/getAllOrders', 'getAllOrders');
+        Route::get('/getAllOrders/{searchKey}', 'getAllOrders');
+        Route::get('/getOrderDetail/{orderCode}', 'getOrderDetail');
+        Route::put('/updateStatusOrder/{id}', 'updateStatusOrder');
+        Route::delete('/deleteOrder/{id}', 'deleteOrder');
+    });
+
+    Route::controller(AdContactControler::class)->prefix('contact')->group(function(){
+        Route::get('/getAllContacts', 'getAllContacts');
+        Route::get('/getAllContacts/{searchKey}', 'getAllContacts');
+        Route::get('/getContactDetail/{id}', 'getContactDetail');
+        Route::put('/readContact/{id}', 'readContact');
+        Route::put('/replyContact/{id}', 'replyContact');
+        Route::delete('/deleteContact/{id}', 'deleteContact');
     });
 
 });
@@ -131,6 +147,7 @@ Route::middleware('auth:sanctum')->group(function(){
     /** Customer Profile Section */
     Route::controller(ProfileController::class)->prefix('user')->group(function(){
         Route::get('/getProfileData', 'getProfileData');
+        Route::post('/updateProfile', 'updateProfile');
     });
 
     /** Customer Shopping Section */

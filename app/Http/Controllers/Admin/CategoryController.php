@@ -74,6 +74,7 @@ class CategoryController extends Controller
      *      path="/admin/category/takeCategories",
      *      operationId="takeCategories",
      *      tags={"Categories"},
+     *      security={{"sanctum":{}}},  
      *      summary="take Categories", 
      *      @OA\Response(
      *          response=200,
