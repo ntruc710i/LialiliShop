@@ -32,7 +32,7 @@ use App\Http\Controllers\Customer\ItemController;
 
 /* Authentication Section */
 Route::controller(AuthController::class)->prefix('auth')->group(function(){
-    Route::post('/admin/register', 'adminRegister')->middleware('auth:sanctum');
+    Route::post('/admin/register', 'adminRegister')->middleware(['auth:sanctum', 'isAdmin']);
     Route::post('/register', 'customerRegister');
     Route::post('/login', 'login');
 
@@ -48,7 +48,7 @@ Route::controller(ProviderLoginController::class)->prefix('auth')->group(functio
 });
 
 /** For Admin Back Office */
-Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum', 'isAdmin'])->prefix('admin')->group(function () {
 
      /* Category Section */
      Route::controller(CategoryController::class)->prefix('category')->group(function(){
@@ -142,7 +142,7 @@ Route::controller(ResetPasswordController::class)->prefix('account')->group(func
 });
 
 /** For Auth Customer */
-Route::middleware('auth:sanctum')->group(function(){
+Route::middleware(['auth:sanctum', 'isCustomer'])->group(function(){
 
     /** Customer Profile Section */
     Route::controller(ProfileController::class)->prefix('user')->group(function(){
